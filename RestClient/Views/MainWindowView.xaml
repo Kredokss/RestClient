@@ -1,0 +1,110 @@
+﻿<Window x:Class="TestRestClient.Views.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TestRestClient.Views"
+        xmlns:converters="clr-namespace:TestRestClient.Converters"
+        mc:Ignorable="d"
+        Title="MainWindowView" Height="450" Width="1000">
+    <Window.Resources>
+        <converters:LanguageToGreetingConverter x:Key="LanguageToGreetingConverter"/>
+        <converters:ContactsToDisplayValueConverter x:Key="ContactsToDisplayValueConverter"/>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Margin" Value="5 5 5 5"/>
+        </Style>
+        <Style TargetType="{x:Type DataGridRow}" >
+            <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+        </Style>
+        
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+
+        <DataGrid x:Name="PersonDataGrid" ItemsSource ="{Binding Persons, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
+                  IsReadOnly="True" AutoGenerateColumns="False" CanUserResizeRows="True" SelectionUnit="FullRow" 
+                  ColumnWidth="*" HorizontalAlignment="Left" 
+                  VerticalAlignment="Top" CanUserAddRows="False" Focusable="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Person Id" Binding="{Binding id}"/>
+                <DataGridTextColumn Header="Company" Binding="{Binding cpny}"/>
+                <DataGridTextColumn Header="Greeting">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource LanguageToGreetingConverter}">
+                            <Binding ElementName="ComboBoxLanguage" Path="SelectedItem"/>
+                            <Binding Path="greetingTxt1"/>
+                            <Binding Path="greetingTxt2"/>
+                            <Binding Path="greetingTxt3"/>
+                            <Binding Path="greetingTxt4"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Title" Binding="{Binding title}"/>
+                <DataGridTextColumn Header="Last Name" Binding="{Binding lName}"/>
+                <DataGridTextColumn Header="First Name" Binding="{Binding fName}"/>
+                <DataGridTextColumn Header="Street" Binding="{Binding street}"/>
+                <DataGridTextColumn Header="Country">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource LanguageToGreetingConverter}">
+                            <Binding ElementName="ComboBoxLanguage" Path="SelectedItem"/>
+                            <Binding Path="txt1"/>
+                            <Binding Path="txt2"/>
+                            <Binding Path="txt3"/>
+                            <Binding Path="txt4"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Postal Code" Binding="{Binding zip}"/>
+                <DataGridTextColumn Header="City" Binding="{Binding city}"/>
+                <DataGridTextColumn Header="Phone">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource ContactsToDisplayValueConverter}">
+                            <Binding Path="contacts"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Birthday" Binding="{Binding dateOfBirth}"/>
+                <DataGridTextColumn Header="Registration" Binding="{Binding firstContact}"/>
+            </DataGrid.Columns>
+            <DataGrid.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick" CommandParameter="{Binding ElementName=PersonDataGrid, Path=SelectedItems}" 
+                              Command ="{Binding Path=EdShowCommand}"/>
+            </DataGrid.InputBindings>
+        </DataGrid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Viewbox Margin="10 0 10 0">
+                <TextBox Name="SearchBox" MinHeight="25" MinWidth="150" Text="{Binding Path=SrchValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </Viewbox>
+            <Viewbox>
+                <ComboBox ItemsSource="{Binding Property, Mode=TwoWay}" x:Name="ComboBoxLanguage" SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"/>
+            </Viewbox>
+            <Viewbox>
+                <Button Content="Add" Command ="{Binding Path=AddCommand}"/>
+            </Viewbox>
+            <Viewbox>
+                <Button HorizontalAlignment="Stretch" Content="Edit" CommandParameter="{Binding ElementName=PersonDataGrid, Path=SelectedItems}" Command ="{Binding Path=EdShowCommand}"/>
+            </Viewbox>
+            <Button Content="Refresh" Command="{Binding Path=RefreshCommand}"/>
+            <Viewbox Margin="0 0 10 0">
+                <Button Content="Delete" Command ="{Binding Path=DeleteCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedItems.Count,ElementName=PersonDataGrid}"
+                                 Value="0">
+                                    <Setter Property="IsEnabled"
+                                Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Viewbox>
+        </StackPanel>
+    </Grid>
+</Window>
